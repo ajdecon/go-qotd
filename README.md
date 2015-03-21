@@ -14,11 +14,11 @@ so it's probably not wise to expose this service in production.
 Usage
 -----
 
-$ ./qotd --help
-Usage of ./qotd:
-  -debug=false: Print debug messages
-  -file="/tmp/quotes": File to get quotes from
-  -port=17: Port to run QOTD on
+    $ ./qotd --help
+    Usage of ./qotd:
+      -debug=false: Print debug messages
+      -file="/tmp/quotes": File to get quotes from
+      -port=17: Port to run QOTD on
 
 Data format
 -----------
