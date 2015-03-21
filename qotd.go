@@ -21,11 +21,13 @@ func main() {
     qchannel := quotes.FileGenerator(*quotesFile)
 
     udps := server.NewUDP()
-    if *debug {
-        udps.SetDebug(true)
-    }
+    udps.SetDebug(*debug)
+    tcps := server.NewTCP()
+    tcps.SetDebug(*debug)
 
     udps.Start(*port, qchannel)
+    tcps.Start(*port, qchannel)
+
     if *debug {
         fmt.Printf("QOTD listening on port %d\n", *port)
     }
