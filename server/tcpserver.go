@@ -79,6 +79,7 @@ func tcpRespondToQuotes(tcps *tcpServer) {
         for {
             status = <-tcps.Done
             if status == true {
+                listener.Close()
                 return
             }
         }
