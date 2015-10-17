@@ -4,6 +4,7 @@ import (
     "net"
     "fmt"
     "log"
+    "log/syslog"
 )
 
 // External interface to the UdpQotdServer
@@ -58,6 +59,9 @@ func tcpRespondToQuotes(tcps *tcpServer) {
     // Start listening for connections
     port := fmt.Sprintf(":%d", tcps.Port)
 
+    // Start a syslog logger
+    logMe := syslog.NewLogger(syslog.LOG_INFO, 1)
+
     if tcps.Debug {
         fmt.Printf("[Will listen on %s]\n", port)
     }
@@ -88,6 +92,7 @@ func tcpRespondToQuotes(tcps *tcpServer) {
     // Respond to connections
     for {
         conn, err := listener.Accept()
+        logMe.Print(fmt.Sprintf("Received request from: %s", conn.String))
         if err != nil {
             continue
         }
