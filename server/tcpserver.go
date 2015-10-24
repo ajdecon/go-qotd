@@ -62,7 +62,7 @@ func tcpRespondToQuotes(tcps *tcpServer) {
     // Start a syslog logger
     logMe, err := syslog.NewLogger(syslog.LOG_INFO, 1)
     if err != nil {
-        tcps.logAndDie("Could not create a new syslog logger")
+        tcps.LogAndDie("Could not create a new syslog logger")
     }
 
     if tcps.Debug {
@@ -95,7 +95,7 @@ func tcpRespondToQuotes(tcps *tcpServer) {
     // Respond to connections
     for {
         conn, err := listener.Accept()
-        logMe.Print(fmt.Sprintf("Received request from: %s", conn.String()))
+        logMe.Print(fmt.Sprintf("Received request from: %s", conn.RemoteAddr().String()))
         if err != nil {
             continue
         }
