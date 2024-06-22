@@ -12,6 +12,9 @@ var port = flag.Int("port", 17, "Port to run QOTD on")
 var udpEnable = flag.Bool("udpserver", false, "Run UDP server")
 var tcpEnable = flag.Bool("tcpserver", true, "Run TCP server")
 
+var httpEnable = flag.Bool("httpserver", false, "Run HTTP server")
+var httpPort = flag.Int("httpport", 8080, "Port to run HTTP server on")
+
 var quotesFile = flag.String("file", "./sample.data", "File to get quotes from")
 var debug = flag.Bool("debug", false, "Print debug messages")
 var maxLength = flag.Int("maxlen", 512, "Maximum length of quote to return, longer are trimmed")
@@ -42,6 +45,17 @@ func main() {
 
 		if *debug {
 			fmt.Printf("QOTD listening on TCP port %d\n", *port)
+		}
+	}
+
+	if *httpEnable {
+		https := server.NewHTTP()
+		https.SetDebug(*debug)
+		https.SetMaxLength(*maxLength)
+		https.Start(*httpPort, qchannel)
+
+		if *debug {
+			fmt.Printf("QOTD launched HTTP server on port %d\n", *httpPort)
 		}
 	}
 
