@@ -7,7 +7,7 @@ import (
     "log/syslog"
 )
 
-// External interface to the UdpQotdServer
+// External interface to the TcpQotdServer
 type TcpQotdServer interface {
     // To start the server, provide a port on which to listen and a channel
     // "quotes" from which to obtain new quotes
