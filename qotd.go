@@ -9,7 +9,7 @@ import (
 )
 
 var port = flag.Int("port", 17, "Port to run QOTD on")
-var quotesFile = flag.String("file", "/tmp/quotes", "File to get quotes from")
+var quotesFile = flag.String("file", "./sample.data", "File to get quotes from")
 var debug = flag.Bool("debug", false, "Print debug messages")
 var maxLength = flag.Int("maxlen", 512, "Maximum length of quote to return, longer are trimmed")
 
