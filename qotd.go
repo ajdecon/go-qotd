@@ -9,6 +9,9 @@ import (
 )
 
 var port = flag.Int("port", 17, "Port to run QOTD on")
+var udpEnable = flag.Bool("udpserver", false, "Run UDP server")
+var tcpEnable = flag.Bool("tcpserver", true, "Run TCP server")
+
 var quotesFile = flag.String("file", "./sample.data", "File to get quotes from")
 var debug = flag.Bool("debug", false, "Print debug messages")
 var maxLength = flag.Int("maxlen", 512, "Maximum length of quote to return, longer are trimmed")
@@ -20,19 +23,26 @@ func main() {
 	// Get a quote generator
 	qchannel := quotes.FileGenerator(*quotesFile)
 
-	udps := server.NewUDP()
-	udps.SetDebug(*debug)
-	udps.SetMaxLength(*maxLength)
+	if *udpEnable {
+		udps := server.NewUDP()
+		udps.SetDebug(*debug)
+		udps.SetMaxLength(*maxLength)
+		udps.Start(*port, qchannel)
 
-	tcps := server.NewTCP()
-	tcps.SetDebug(*debug)
-	tcps.SetMaxLength(*maxLength)
+		if *debug {
+			fmt.Printf("QOTD listening on UDP port %d\n", *port)
+		}
+	}
 
-	udps.Start(*port, qchannel)
-	tcps.Start(*port, qchannel)
+	if *tcpEnable {
+		tcps := server.NewTCP()
+		tcps.SetDebug(*debug)
+		tcps.SetMaxLength(*maxLength)
+		tcps.Start(*port, qchannel)
 
-	if *debug {
-		fmt.Printf("QOTD listening on port %d\n", *port)
+		if *debug {
+			fmt.Printf("QOTD listening on TCP port %d\n", *port)
+		}
 	}
 
 	for {
