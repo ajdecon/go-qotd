@@ -11,6 +11,7 @@ import (
 var port = flag.Int("port", 17, "Port to run QOTD on")
 var quotesFile = flag.String("file", "/tmp/quotes", "File to get quotes from")
 var debug = flag.Bool("debug", false, "Print debug messages")
+var maxLength = flag.Int("maxlen", 512, "Maximum length of quote to return, longer are trimmed")
 
 func main() {
 	// Get options
@@ -21,8 +22,11 @@ func main() {
 
 	udps := server.NewUDP()
 	udps.SetDebug(*debug)
+	udps.SetMaxLength(*maxLength)
+
 	tcps := server.NewTCP()
 	tcps.SetDebug(*debug)
+	tcps.SetMaxLength(*maxLength)
 
 	udps.Start(*port, qchannel)
 	tcps.Start(*port, qchannel)
