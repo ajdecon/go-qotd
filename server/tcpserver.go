@@ -16,19 +16,26 @@ type TcpQotdServer interface {
 	// Close the server
 	Close()
 
+	// Set max quote length
+	SetMaxLength(ml int)
+
 	// Turn on debugging
 	SetDebug(debug bool)
 }
 
 type tcpServer struct {
-	Port   int
-	Quotes chan string
-	Done   chan bool
-	Debug  bool
+	Port      int
+	Quotes    chan string
+	Done      chan bool
+	Debug     bool
+	MaxLength int
 }
 
+// Maximum allowed length for QOTD server is 512 as defined in
+// RFC 865: http://tools.ietf.org/html/rfc865
+// Use this as default max length
 func NewTCP() TcpQotdServer {
-	return &tcpServer{Port: 0, Quotes: nil, Done: make(chan bool)}
+	return &tcpServer{Port: 0, Quotes: nil, MaxLength: 512, Done: make(chan bool)}
 }
 
 func (tcps *tcpServer) Start(port int, quotes chan string) error {
@@ -44,6 +51,10 @@ func (tcps *tcpServer) Close() {
 
 func (tcps *tcpServer) SetDebug(debug bool) {
 	tcps.Debug = debug
+}
+
+func (tcps *tcpServer) SetMaxLength(ml int) {
+	tcps.MaxLength = ml
 }
 
 func (tcps *tcpServer) LogAndDie(msg string) {
@@ -106,6 +117,12 @@ func tcpRespondToQuotes(tcps *tcpServer) {
 func handleConnection(conn net.Conn, tcps *tcpServer) {
 	defer conn.Close()
 	q := <-tcps.Quotes
+
+	if len(q) > tcps.MaxLength {
+		q = string([]byte(q)[0 : tcps.MaxLength-3]) // MaxLength - 3 for ellipses
+		q = q + "..."
+	}
+
 	if tcps.Debug {
 		log.Printf("Sending: %s\n", q)
 	}

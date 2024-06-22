@@ -7,10 +7,6 @@ import (
 	"strings"
 )
 
-// Maximum allowed length for QOTD server is 512 as defined in
-// RFC 865: http://tools.ietf.org/html/rfc865
-const MaxLength = 512
-
 // Return a channel which feeds quotes based on a file
 func FileGenerator(filename string) chan string {
 	qchannel := make(chan string, 5)
@@ -27,15 +23,6 @@ func cacheQuotes(filename string) ([]string, int) {
 		log.Fatalf("Could not read in %s\n", filename)
 	}
 	quotes := strings.Split(string(contents), "\n%\n")
-
-	// Trim the quotes
-	for i := range quotes {
-		if len(quotes[i]) > MaxLength {
-			quotes[i] = string([]byte(quotes[i])[0 : MaxLength-3]) // MaxLength - 3 for ellipses
-			quotes[i] = quotes[i] + "..."
-		}
-	}
-
 	return quotes, len(quotes)
 }
 

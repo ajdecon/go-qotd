@@ -15,19 +15,26 @@ type UdpQotdServer interface {
 	// Close the server
 	Close()
 
+	// Set max quote length
+	SetMaxLength(ml int)
+
 	// Turn on debugging
 	SetDebug(debug bool)
 }
 
 type udpServer struct {
-	Port   int
-	Quotes chan string
-	Done   chan bool
-	Debug  bool
+	Port      int
+	Quotes    chan string
+	Done      chan bool
+	Debug     bool
+	MaxLength int
 }
 
+// Maximum allowed length for QOTD server is 512 as defined in
+// RFC 865: http://tools.ietf.org/html/rfc865
+// Use this as default max length
 func NewUDP() UdpQotdServer {
-	return &udpServer{Port: 0, Quotes: nil, Done: make(chan bool)}
+	return &udpServer{Port: 0, Quotes: nil, MaxLength: 512, Done: make(chan bool)}
 }
 
 func (udps *udpServer) Start(port int, quotes chan string) error {
@@ -43,6 +50,10 @@ func (udps *udpServer) Close() {
 
 func (udps *udpServer) SetDebug(debug bool) {
 	udps.Debug = debug
+}
+
+func (udps *udpServer) SetMaxLength(ml int) {
+	udps.MaxLength = ml
 }
 
 func (udps *udpServer) LogAndDie(msg string) {
@@ -97,6 +108,11 @@ func respondToQuotes(udps *udpServer) {
 		// Get a new quote from the channel!
 		q := <-udps.Quotes
 		buf = []byte(q)
+
+		if len(q) > udps.MaxLength {
+			q = string([]byte(q)[0 : udps.MaxLength-3]) // MaxLength - 3 for ellipses
+			q = q + "..."
+		}
 
 		if udps.Debug {
 			log.Printf("Sending: %s\n", q)
